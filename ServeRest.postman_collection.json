@@ -12,6 +12,27 @@
 			"item": [
 				{
 					"name": "Realizar login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code name has string\", function () {\r",
+									"    pm.response.to.have.status(\"Created\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Mensagem de sucesso deve ser 'Cadastro realizado com sucesso'\", function () {\r",
+									"    pm.response.to.have.jsonBody('message', 'Cadastro realizado com sucesso');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem de erro para credenciais inválidas\", function () {\r",
+									"    pm.response.to.have.jsonBody('message', 'Email e/ou senha inválidos');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -126,6 +147,47 @@
 					"item": [
 						{
 							"name": "Buscar usuário por ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Informações da requisição\r",
+											"var userId = \"0uxuPY0cbmQhpEz1\";\r",
+											"var requestInfo = {\r",
+											"    url: \"{{baseUrl}}/usuarios/\" + _id, // Monta a URL com o ID do usuário\r",
+											"    method: \"GET\",\r",
+											"};\r",
+											"\r",
+											"// Executa a requisição\r",
+											"var response = pm.sendRequest(requestInfo);\r",
+											"\r",
+											"// Validar o status code\r",
+											"pm.test(\"Status code deve ser 200 para usuário encontrado\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// Se o status code for 200, validar os detalhes do usuário\r",
+											"if (response.code === 200) {\r",
+											"    pm.test(\"Validar detalhes do usuário\", function () {\r",
+											"        pm.response.to.have.jsonBody('nome', 'Fulano da Silva');\r",
+											"        pm.response.to.have.jsonBody('email', 'beltrano@qa.com.br');\r",
+											"        pm.response.to.have.jsonBody('administrador', 'true');\r",
+											"        pm.response.to.have.jsonBody('_id', '0uxuPY0cbmQhpEz1');\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"// Se o status code for 400, validar a mensagem de erro\r",
+											"if (response.code === 400) {\r",
+											"    pm.test(\"Mensagem de erro deve ser 'Usuário não encontrado'\", function () {\r",
+											"        pm.response.to.have.jsonBody('message', 'Usuário não encontrado');\r",
+											"    });\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "GET",
 								"header": [
@@ -233,6 +295,44 @@
 						},
 						{
 							"name": "Excluir usuário",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Informações da requisição\r",
+											"var userId = \"0uxuPY0cbmQhpEz1\"; // Substitua pelo ID do usuário que você deseja excluir\r",
+											"var requestInfo = {\r",
+											"    url: \"{{baseUrl}}/usuarios/\" + userId, // Monta a URL com o ID do usuário\r",
+											"    method: \"DELETE\",\r",
+											"};\r",
+											"\r",
+											"// Executar a requisição\r",
+											"var response = pm.sendRequest(requestInfo);\r",
+											"\r",
+											"// Validar o status code\r",
+											"pm.test(\"Status code deve ser 200 para exclusão com sucesso\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// Validar a mensagem de sucesso ou a mensagem de nenhum registro excluído\r",
+											"pm.test(\"Mensagem de exclusão com sucesso ou nenhum registro excluído\", function () {\r",
+											"    pm.response.to.have.jsonBody('message', 'Registro excluído com sucesso | Nenhum registro excluído');\r",
+											"});\r",
+											"\r",
+											"// Se o status code for 400, validar a mensagem de erro\r",
+											"if (response.code === 400) {\r",
+											"    pm.test(\"Mensagem de erro deve ser 'Não é permitido excluir usuário com carrinho cadastrado'\", function () {\r",
+											"        pm.response.to.have.jsonBody('message', 'Não é permitido excluir usuário com carrinho cadastrado');\r",
+											"        pm.response.to.have.jsonBody('idCarrinho');\r",
+											"    });\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "DELETE",
 								"header": [
@@ -449,6 +549,56 @@
 						},
 						{
 							"name": "Editar usuário",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Informações da requisição\r",
+											"var userId = \"0uxuPY0cbmQhpEz1\";\r",
+											"var requestInfo = {\r",
+											"    url: \"{{baseUrl}}/usuarios/\" + userId,\r",
+											"    method: \"PUT\",\r",
+											"    header: \"Content-Type:application/json\",\r",
+											"    body: {\r",
+											"        mode: \"raw\",\r",
+											"        raw: JSON.stringify({\r",
+											"            \"nome\": \"Novo Nome\",\r",
+											"            \"email\": \"novoemail@teste.com\",\r",
+											"            \"password\": \"NovoPassword123\",\r",
+											"            \"administrador\": \"true\"\r",
+											"        })\r",
+											"    }\r",
+											"};\r",
+											"\r",
+											"// Executar a requisição\r",
+											"var response = pm.sendRequest(requestInfo);\r",
+											"\r",
+											"// Validar o status code\r",
+											"pm.test(\"Status code deve ser 200 ou 201 para alteração/cadastro com sucesso\", function () {\r",
+											"    pm.response.to.have.status.oneOf([200, 201]);\r",
+											"});\r",
+											"\r",
+											"// Se o status code for 200 ou 201, validar a mensagem de sucesso\r",
+											"if (response.code === 200 || response.code === 201) {\r",
+											"    pm.test(\"Mensagem de sucesso deve ser 'Registro alterado/cadastrado com sucesso'\", function () {\r",
+											"        pm.response.to.have.jsonBody('message', 'Registro alterado/cadastrado com sucesso');\r",
+											"        pm.response.to.have.jsonBody('_id'); // Certifique-se de que o campo '_id' está presente na resposta\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"// Se o status code for 400, validar a mensagem de erro\r",
+											"if (response.code === 400) {\r",
+											"    pm.test(\"Mensagem de erro deve ser 'Este email já está sendo usado'\", function () {\r",
+											"        pm.response.to.have.jsonBody('message', 'Este email já está sendo usado');\r",
+											"    });\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -752,6 +902,53 @@
 				},
 				{
 					"name": "Cadastrar usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Informações da requisição\r",
+									"var requestInfo = {\r",
+									"    url: \"{{baseUrl}}/usuarios\",\r",
+									"    method: \"POST\",\r",
+									"    header: \"Content-Type:application/json\",\r",
+									"    body: {\r",
+									"        mode: \"raw\",\r",
+									"        raw: JSON.stringify({\r",
+									"            \"nome\": \"Gabrielly Teste Ebac\",\r",
+									"            \"email\": \"gabriellypompeo@teste.com\",\r",
+									"            \"password\": \"Teste1234\",\r",
+									"            \"administrador\": \"false\"\r",
+									"        })\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"// Executar a requisição\r",
+									"var response = pm.sendRequest(requestInfo);\r",
+									"\r",
+									"// Validar o status code\r",
+									"pm.test(\"Status code deve ser 201 para cadastro com sucesso\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// Validar a mensagem de sucesso\r",
+									"pm.test(\"Mensagem de sucesso deve ser 'Cadastro realizado com sucesso'\", function () {\r",
+									"    pm.response.to.have.jsonBody('message', 'Cadastro realizado com sucesso');\r",
+									"    pm.response.to.have.jsonBody('_id');\r",
+									"});\r",
+									"\r",
+									"// Se o status code for 400, validar a mensagem de erro\r",
+									"if (response.code === 400) {\r",
+									"    pm.test(\"Mensagem de erro deve ser 'Este email já está sendo usado'\", function () {\r",
+									"        pm.response.to.have.jsonBody('message', 'Este email já está sendo usado');\r",
+									"    });\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
